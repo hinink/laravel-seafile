@@ -1,0 +1,35 @@
+{
+  "name": "hinink/laravel-seafile",
+  "description": "seaFile for laravel storage",
+  "keywords": [
+    "seaFile",
+    "storage",
+    "sdk",
+    "laravel"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "hinink\\SeaFileStorage\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Hinink Z",
+      "email": "hinink.zhu@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.4",
+    "rsd/seafile-php-sdk": "^v2.0.1"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "hinink\\SeaFileStorage\\SeaFileFilesystemServiceProvider"
+      ]
+    }
+  }
+}
