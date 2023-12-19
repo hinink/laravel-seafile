@@ -24,14 +24,13 @@ class File extends BaseFile
 		$path       = pathinfo($remoteFilePath, PATHINFO_DIRNAME);
 		$path       = $path === '.' ? '/' : $path;
 		$json       = json_decode((string)$response->getBody());
-		$json->dir  = $path;
 		$json->path = $path;
 		return (new DirectoryItem)->fromJson($json);
 	}
 
 	public function rename($library, $dirItem, string $newFilename): bool
 	{
-		$filePath = $dirItem->dir . $dirItem->name;
+		$filePath = $dirItem->path === '/' ? $dirItem->dir . $dirItem->name : $dirItem->dir . $dirItem->path . '/' . $dirItem->name;
 
 		if (empty($filePath)) {
 			throw new InvalidArgumentException('Invalid file path: must not be empty');
@@ -52,28 +51,23 @@ class File extends BaseFile
 			'POST',
 			$uri,
 			[
-				'headers'   => [ 'Accept' => 'application/json' ],
-				'multipart' => [
-					[
-						'name'     => 'operation',
-						'contents' => 'rename',
-					],
-					[
-						'name'     => 'newname',
-						'contents' => $newFilename,
-					],
+				'headers'     => [ 'Accept' => 'application/json' ],
+				'form_params' => [
+					'operation' => 'rename',
+					'newname'   => $newFilename,
 				],
 			]
 		);
-
-
-		$success = $response->getStatusCode() === 200;
-
+		$success  = $response->getStatusCode() === 200;
 		if ($success) {
 			$dirItem->name = $newFilename;
 		}
-
 		return $success;
+	}
+
+	protected function urlEncodePath(string $path)
+	{
+		return implode('/', array_map('rawurlencode', explode('/', (string)$path)));
 	}
 }
 

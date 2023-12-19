@@ -117,10 +117,7 @@ class SeaFileAdapter extends AbstractAdapter
 		if ($directory_item) {
 			return $this->fileResource->rename($this->library, $directory_item, $newname);
 		}
-//			return false;
-//		} catch (Exception $exception) {
-//			return false;
-//		}
+		return false;
 	}
 
 	public function copy($path, $newpath)
