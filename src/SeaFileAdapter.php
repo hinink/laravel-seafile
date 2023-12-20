@@ -9,14 +9,14 @@ namespace hinink\SeaFileStorage;
 
 use Cache;
 use Exception;
+use hinink\SeaFileStorage\Resource\Directory;
+use hinink\SeaFileStorage\Resource\File;
 use League\Flysystem\Adapter\AbstractAdapter;
 use League\Flysystem\Adapter\Polyfill\NotSupportingVisibilityTrait;
 use League\Flysystem\Adapter\Polyfill\StreamedReadingTrait;
 use League\Flysystem\Config;
 use Seafile\Client\Http\Client;
-use hinink\SeaFileStorage\Resource\File;
 use Seafile\Client\Resource\Library;
-use Seafile\Client\Type\DirectoryItem;
 
 class SeaFileAdapter extends AbstractAdapter
 {
@@ -136,12 +136,19 @@ class SeaFileAdapter extends AbstractAdapter
 
 	public function deleteDir($dirname)
 	{
-		// TODO: Implement deleteDir() method.
+		try {
+			$directoryResource = new Directory($this->client);
+			return $directoryResource->remove($this->library, $dirname);
+		} catch (Exception $exception) {
+			return false;
+		}
 	}
 
 	public function createDir($dirname, Config $config)
 	{
-		// TODO: Implement createDir() method.
+		$directoryResource = new Directory($this->client);
+		$recursive         = $config->get('recursive', true);
+		return $directoryResource->create($this->library, $dirname, $this->parentDir, $recursive);
 	}
 
 	/**
@@ -159,7 +166,32 @@ class SeaFileAdapter extends AbstractAdapter
 
 	public function listContents($directory = '', $recursive = false)
 	{
-		// TODO: Implement listContents() method.
+		try {
+			$contents          = [];
+			$directoryResource = new Directory($this->client);
+			$items             = $directoryResource->getAll($this->library, $directory);
+			foreach ($items as $item) {
+				$info = [
+					'type'      => $item->type,
+					'path'      => $directory === '' ? $item->name : $directory . '/' . $item->name,
+					'timestamp' => $item->mtime->getTimestamp(),
+					'dirname'   => $directory,
+					'basename'  => $item->name,
+					'filename'  => $item->name,
+				];
+				if ($info['type'] === 'file') {
+					$info['extension'] = pathinfo($info['filename'], PATHINFO_EXTENSION);
+					$info['size']      = $item->size;
+					$info['filename']  = pathinfo($info['filename'], PATHINFO_FILENAME);
+				}
+				array_push($contents, $info);
+			}
+			return $contents;
+		} catch (Exception $exception) {
+			dump($exception->getMessage());
+			return [];
+		}
+
 	}
 
 	public function getMetadata($path)
@@ -218,13 +250,15 @@ class SeaFileAdapter extends AbstractAdapter
 					return Cache::tags([ 'seafile', 'url' ])->get($url);
 				}
 			}
-			$fileResource = new File($this->client);
-			$full_url     = $fileResource->getDownloadUrl($this->library, new DirectoryItem(), $url);
+			$fileResource   = new File($this->client);
+			$directory_item = $this->getMetadata($path);
+			$full_url       = $fileResource->getDownloadUrl($this->library, $directory_item, $directory_item->path);
 			if (is_array($path) and $path['cache']) {
 				Cache::tags([ 'seafile', 'url' ])->put($url, $full_url, 3000);
 			}
 			return $full_url;
 		} catch (Exception $exception) {
+			dump($exception->getMessage());
 			return false;
 		}
 	}

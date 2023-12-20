@@ -7,6 +7,7 @@
 
 namespace hinink\SeaFileStorage\Resource;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Seafile\Client\Resource\File as BaseFile;
 use Seafile\Client\Type\DirectoryItem;
 use Seafile\Client\Type\Library as LibraryType;
@@ -15,14 +16,15 @@ class File extends BaseFile
 {
 	public function getFileDetail(LibraryType $library, string $remoteFilePath): DirectoryItem
 	{
-		$url        = $this->getApiBaseUrl()
+		$url      = $this->getApiBaseUrl()
 			. '/repos/'
 			. $library->id
 			. '/file/detail/'
 			. '?p=' . $this->urlEncodePath($remoteFilePath);
-		$response   = $this->client->request('GET', $url);
-		$path       = pathinfo($remoteFilePath, PATHINFO_DIRNAME);
-		$path       = $path === '.' ? '/' : $path;
+		$response = $this->client->request('GET', $url);
+		$path     = dirname($remoteFilePath);
+		$path     = $path === '.' ? '/' : $path . '/';
+		dump($path);
 		$json       = json_decode((string)$response->getBody());
 		$json->path = $path;
 		return (new DirectoryItem)->fromJson($json);
@@ -30,8 +32,7 @@ class File extends BaseFile
 
 	public function rename($library, $dirItem, string $newFilename): bool
 	{
-		$filePath = $dirItem->path === '/' ? $dirItem->dir . $dirItem->name : $dirItem->dir . $dirItem->path . '/' . $dirItem->name;
-
+		$filePath = $dirItem->path === '/' ? $dirItem->dir . $dirItem->name : $dirItem->dir . $dirItem->path . $dirItem->name;
 		if (empty($filePath)) {
 			throw new InvalidArgumentException('Invalid file path: must not be empty');
 		}
@@ -65,9 +66,81 @@ class File extends BaseFile
 		return $success;
 	}
 
-	protected function urlEncodePath(string $path)
+	public function move(
+		LibraryType $srcLibrary,
+		string $srcFilePath,
+		LibraryType $dstLibrary,
+		string $dstDirectoryPath
+	): bool
 	{
-		return implode('/', array_map('rawurlencode', explode('/', (string)$path)));
+		return $this->copy($srcLibrary, $srcFilePath, $dstLibrary, $dstDirectoryPath, self::OPERATION_MOVE);
+	}
+
+	/**
+	 * Copy a file
+	 *
+	 * @param LibraryType $srcLibrary Source library object
+	 * @param string      $srcFilePath Source file path
+	 * @param LibraryType $dstLibrary Destination library object
+	 * @param string      $dstDirectoryPath Destination directory path
+	 * @param int         $operation Operation mode
+	 *
+	 * @return bool
+	 * @throws GuzzleException
+	 */
+	public function copy(
+		LibraryType $srcLibrary,
+		string $srcFilePath,
+		LibraryType $dstLibrary,
+		string $dstDirectoryPath,
+		int $operation = self::OPERATION_COPY
+	): bool
+	{
+		// do not allow empty paths
+		if (empty($srcFilePath) || empty($dstDirectoryPath)) {
+			return false;
+		}
+
+		$operationMode = 'copy';
+		$returnCode    = 200;
+
+		if ($operation === self::OPERATION_MOVE) {
+			$operationMode = 'move';
+			$returnCode    = 301;
+		}
+
+		$uri = sprintf(
+			'%s/repos/%s/file/?p=%s',
+			$this->clipUri($this->getApiBaseUrl()),
+			$srcLibrary->id,
+			$this->urlEncodePath($srcFilePath)
+		);
+//		dump($dstLibrary->id);
+//		dump($dstDirectoryPath);
+//		dump($uri);die;
+		$response = $this->client->request(
+			'POST',
+			$uri,
+			[
+				'headers'   => [ 'Accept' => 'application/json' ],
+				'multipart' => [
+					[
+						'name'     => 'operation',
+						'contents' => $operationMode,
+					],
+					[
+						'name'     => 'dst_repo',
+						'contents' => $dstLibrary->id,
+					],
+					[
+						'name'     => 'dst_dir',
+						'contents' => $dstDirectoryPath,
+					],
+				],
+			]
+		);
+
+		return $response->getStatusCode() === $returnCode;
 	}
 }
 
