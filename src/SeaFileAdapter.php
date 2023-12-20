@@ -9,6 +9,7 @@ namespace hinink\SeaFileStorage;
 
 use Cache;
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use hinink\SeaFileStorage\Resource\Directory;
 use hinink\SeaFileStorage\Resource\File;
 use League\Flysystem\Adapter\AbstractAdapter;
@@ -26,11 +27,14 @@ class SeaFileAdapter extends AbstractAdapter
 	protected string $repo_id;
 	protected string $username;
 	protected string $password;
-	protected Client $client;
+	protected $client;
 	protected File $fileResource;
 	protected $library;
 	protected $parentDir = '/';
 
+	/**
+	 * @throws Exception
+	 */
 	public function __construct($server, $repo_id, $token, $username = '', $password = '')
 	{
 		$this->baseUri  = $server;
@@ -45,7 +49,7 @@ class SeaFileAdapter extends AbstractAdapter
 	/**
 	 * @throws Exception
 	 */
-	public function getClient()
+	public function getClient(): Client
 	{
 		if (!$this->token) {
 			throw new Exception('token is empty', 410);
@@ -70,13 +74,16 @@ class SeaFileAdapter extends AbstractAdapter
 	/**
 	 * @throws Exception
 	 */
-	public function getLibrary()
+	public function getLibrary(): \Seafile\Client\Type\Library
 	{
 		$libraryResource = new Library($this->client);
 		return $libraryResource->getById($this->repo_id);
 	}
 
-	public function getUploadUrl($newFile, $dir = '/')
+	/**
+	 * @throws GuzzleException
+	 */
+	public function getUploadUrl($newFile, $dir = '/'): string
 	{
 		$fileResource = new File($this->client);
 		return $fileResource->getUploadUrl($this->library, $newFile, $dir);
@@ -110,12 +117,11 @@ class SeaFileAdapter extends AbstractAdapter
 
 	/**
 	 * @param $path
-	 * @param $newpath
-	 * @description The request was successful and 404 was returned.
+	 * @param $newname
 	 * @return bool
-	 * @throws \GuzzleHttp\Exception\GuzzleException
+	 * @description The request was successful and 404 was returned.
 	 */
-	public function rename($path, $newname)
+	public function rename($path, $newname): bool
 	{
 		$directory_item = $this->getMetadata($path);
 		if ($directory_item) {
@@ -129,7 +135,7 @@ class SeaFileAdapter extends AbstractAdapter
 
 	}
 
-	public function delete($path)
+	public function delete($path): bool
 	{
 		$directory_item = $this->getMetadata($path);
 		if ($directory_item) {
@@ -138,7 +144,7 @@ class SeaFileAdapter extends AbstractAdapter
 		return false;
 	}
 
-	public function deleteDir($dirname)
+	public function deleteDir($dirname): bool
 	{
 		try {
 			$directoryResource = new Directory($this->client);
@@ -155,7 +161,7 @@ class SeaFileAdapter extends AbstractAdapter
 		return $directoryResource->create($this->library, $dirname, $this->parentDir, $recursive);
 	}
 
-	public function renameDir($path, $newname)
+	public function renameDir($path, $newname): bool
 	{
 		$directoryResource = new Directory($this->client);
 		return $directoryResource->rename($this->library, $path, $newname);
@@ -165,7 +171,7 @@ class SeaFileAdapter extends AbstractAdapter
 	 * @param $path
 	 * @return bool
 	 */
-	public function has($path)
+	public function has($path): bool
 	{
 		$metadata = $this->getMetadata($path);
 		if ($metadata) {
@@ -174,7 +180,7 @@ class SeaFileAdapter extends AbstractAdapter
 		return false;
 	}
 
-	public function listContents($directory = '', $recursive = false)
+	public function listContents($directory = '', $recursive = false): array
 	{
 		try {
 			$contents          = [];
@@ -194,7 +200,7 @@ class SeaFileAdapter extends AbstractAdapter
 					$info['size']      = $item->size;
 					$info['filename']  = pathinfo($info['filename'], PATHINFO_FILENAME);
 				}
-				array_push($contents, $info);
+				$contents[] = $info;
 			}
 			return $contents;
 		} catch (Exception $exception) {
@@ -209,7 +215,7 @@ class SeaFileAdapter extends AbstractAdapter
 			$fileResource       = new File($this->client);
 			$this->fileResource = $fileResource;
 			return $fileResource->getFileDetail($this->library, $path);
-		} catch (Exception $exception) {
+		} catch (Exception|GuzzleException $exception) {
 			return false;
 		}
 	}
@@ -223,7 +229,7 @@ class SeaFileAdapter extends AbstractAdapter
 		return false;
 	}
 
-	public function getMimetype($path)
+	public function getMimetype($path): array
 	{
 		$metadata = $this->getMetadata($path);
 		return [ 'mimetype' => $metadata->type ];
@@ -247,7 +253,7 @@ class SeaFileAdapter extends AbstractAdapter
 	/**
 	 * @param array|string $path
 	 * @return array|mixed|string
-	 * @throws \GuzzleHttp\Exception\GuzzleException
+	 * @throws GuzzleException
 	 */
 	public function getUrl($path)
 	{
