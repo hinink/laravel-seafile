@@ -76,9 +76,10 @@ class SeaFileAdapter extends AbstractAdapter
 		return $libraryResource->getById($this->repo_id);
 	}
 
-	public function getUploadUrl($library, $newFile, $dir = '/')
+	public function getUploadUrl($newFile, $dir = '/')
 	{
-
+		$fileResource = new File($this->client);
+		return $fileResource->getUploadUrl($this->library, $newFile, $dir);
 	}
 
 	public function write($path, $contents, Config $config)
@@ -101,6 +102,12 @@ class SeaFileAdapter extends AbstractAdapter
 		// TODO: Implement updateStream() method.
 	}
 
+	public function download($path, $savepath = '')
+	{
+		$fileResource = new File($this->client);
+		return $fileResource->download($this->library, $path, $savepath, 1);
+	}
+
 	/**
 	 * @param $path
 	 * @param $newpath
@@ -110,9 +117,6 @@ class SeaFileAdapter extends AbstractAdapter
 	 */
 	public function rename($path, $newname)
 	{
-//		$fileResource = new File($this->client);
-//		return $fileResource->move($this->library, $path, $this->library, $newpath);
-//		try {
 		$directory_item = $this->getMetadata($path);
 		if ($directory_item) {
 			return $this->fileResource->rename($this->library, $directory_item, $newname);
@@ -149,6 +153,12 @@ class SeaFileAdapter extends AbstractAdapter
 		$directoryResource = new Directory($this->client);
 		$recursive         = $config->get('recursive', true);
 		return $directoryResource->create($this->library, $dirname, $this->parentDir, $recursive);
+	}
+
+	public function renameDir($path, $newname)
+	{
+		$directoryResource = new Directory($this->client);
+		return $directoryResource->rename($this->library, $path, $newname);
 	}
 
 	/**
@@ -188,7 +198,6 @@ class SeaFileAdapter extends AbstractAdapter
 			}
 			return $contents;
 		} catch (Exception $exception) {
-			dump($exception->getMessage());
 			return [];
 		}
 
@@ -258,7 +267,6 @@ class SeaFileAdapter extends AbstractAdapter
 			}
 			return $full_url;
 		} catch (Exception $exception) {
-			dump($exception->getMessage());
 			return false;
 		}
 	}

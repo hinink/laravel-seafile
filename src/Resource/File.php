@@ -16,18 +16,24 @@ class File extends BaseFile
 {
 	public function getFileDetail(LibraryType $library, string $remoteFilePath): DirectoryItem
 	{
-		$url      = $this->getApiBaseUrl()
+		$url        = $this->getApiBaseUrl()
 			. '/repos/'
 			. $library->id
 			. '/file/detail/'
 			. '?p=' . $this->urlEncodePath($remoteFilePath);
-		$response = $this->client->request('GET', $url);
-		$path     = dirname($remoteFilePath);
-		$path     = $path === '.' ? '/' : $path . '/';
-		dump($path);
+		$response   = $this->client->request('GET', $url);
+		$path       = dirname($remoteFilePath);
+		$path       = $path === '.' ? '/' : $path . '/';
 		$json       = json_decode((string)$response->getBody());
 		$json->path = $path;
 		return (new DirectoryItem)->fromJson($json);
+	}
+
+	public function download(LibraryType $library, string $filePath, string $localFilePath, int $reuse = 1)
+	{
+		$item          = $this->getFileDetail($library, $filePath);
+		$localFilePath = $localFilePath ?: $item->name;
+		return $this->downloadFromDir($library, $item, $localFilePath, $item->dir, $reuse);
 	}
 
 	public function rename($library, $dirItem, string $newFilename): bool

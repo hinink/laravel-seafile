@@ -28,7 +28,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "hinink\\SeaFileStorage\\SeaFileFilesystemServiceProvider"
+        "hinink\\SeaFileStorage\\SeaFilesystemServiceProvider"
       ]
     }
   }

@@ -5,7 +5,7 @@ namespace hinink\SeaFileStorage\Plugins;
 use League\Flysystem\Plugin\AbstractPlugin;
 use Seafile\Client\Type\Library as LibraryType;
 
-class UploadUrl extends AbstractPlugin
+class Download extends AbstractPlugin
 {
 
 	/**
@@ -15,11 +15,11 @@ class UploadUrl extends AbstractPlugin
 	 */
 	public function getMethod()
 	{
-		return 'getUploadUrl';
+		return 'download';
 	}
 
-	public function handle($dir = '/', $newFile = true)
+	public function handle($path, $savepath = '')
 	{
-		return $this->filesystem->getAdapter()->getUploadUrl($newFile, $dir);
+		return $this->filesystem->getAdapter()->download($path, $savepath);
 	}
 }
