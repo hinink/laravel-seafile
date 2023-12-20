@@ -23,7 +23,8 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=7.4",
-    "rsd/seafile-php-sdk": "^v2.0.1"
+    "rsd/seafile-php-sdk": "^v2.0.1",
+    "marcusball/case-helper": "dev-master"
   },
   "extra": {
     "laravel": {

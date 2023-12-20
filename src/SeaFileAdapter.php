@@ -27,14 +27,11 @@ class SeaFileAdapter extends AbstractAdapter
 	protected string $repo_id;
 	protected string $username;
 	protected string $password;
-	protected $client;
+	protected Client $client;
 	protected File $fileResource;
 	protected $library;
 	protected $parentDir = '/';
 
-	/**
-	 * @throws Exception
-	 */
 	public function __construct($server, $repo_id, $token, $username = '', $password = '')
 	{
 		$this->baseUri  = $server;
@@ -49,7 +46,7 @@ class SeaFileAdapter extends AbstractAdapter
 	/**
 	 * @throws Exception
 	 */
-	public function getClient(): Client
+	public function getClient()
 	{
 		if (!$this->token) {
 			throw new Exception('token is empty', 410);
@@ -74,16 +71,13 @@ class SeaFileAdapter extends AbstractAdapter
 	/**
 	 * @throws Exception
 	 */
-	public function getLibrary(): \Seafile\Client\Type\Library
+	public function getLibrary()
 	{
 		$libraryResource = new Library($this->client);
 		return $libraryResource->getById($this->repo_id);
 	}
 
-	/**
-	 * @throws GuzzleException
-	 */
-	public function getUploadUrl($newFile, $dir = '/'): string
+	public function getUploadUrl($newFile, $dir = '/')
 	{
 		$fileResource = new File($this->client);
 		return $fileResource->getUploadUrl($this->library, $newFile, $dir);
@@ -135,7 +129,7 @@ class SeaFileAdapter extends AbstractAdapter
 
 	}
 
-	public function delete($path): bool
+	public function delete($path)
 	{
 		$directory_item = $this->getMetadata($path);
 		if ($directory_item) {
@@ -144,7 +138,7 @@ class SeaFileAdapter extends AbstractAdapter
 		return false;
 	}
 
-	public function deleteDir($dirname): bool
+	public function deleteDir($dirname)
 	{
 		try {
 			$directoryResource = new Directory($this->client);
@@ -161,7 +155,7 @@ class SeaFileAdapter extends AbstractAdapter
 		return $directoryResource->create($this->library, $dirname, $this->parentDir, $recursive);
 	}
 
-	public function renameDir($path, $newname): bool
+	public function renameDir($path, $newname)
 	{
 		$directoryResource = new Directory($this->client);
 		return $directoryResource->rename($this->library, $path, $newname);
@@ -171,7 +165,7 @@ class SeaFileAdapter extends AbstractAdapter
 	 * @param $path
 	 * @return bool
 	 */
-	public function has($path): bool
+	public function has($path)
 	{
 		$metadata = $this->getMetadata($path);
 		if ($metadata) {
@@ -180,7 +174,7 @@ class SeaFileAdapter extends AbstractAdapter
 		return false;
 	}
 
-	public function listContents($directory = '', $recursive = false): array
+	public function listContents($directory = '', $recursive = false)
 	{
 		try {
 			$contents          = [];
@@ -215,7 +209,7 @@ class SeaFileAdapter extends AbstractAdapter
 			$fileResource       = new File($this->client);
 			$this->fileResource = $fileResource;
 			return $fileResource->getFileDetail($this->library, $path);
-		} catch (Exception|GuzzleException $exception) {
+		} catch (Exception $exception) {
 			return false;
 		}
 	}
