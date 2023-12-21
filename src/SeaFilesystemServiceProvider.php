@@ -3,6 +3,7 @@
 namespace hinink\SeaFileStorage;
 
 use hinink\SeaFileStorage\Plugins\Download;
+use hinink\SeaFileStorage\Plugins\GetToken;
 use hinink\SeaFileStorage\Plugins\UploadUrl;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
@@ -33,6 +34,7 @@ class SeaFilesystemServiceProvider extends ServiceProvider
 			$file_system      = new Filesystem($sea_file_adapter);
 			$file_system->addPlugin(new UploadUrl());
 			$file_system->addPlugin(new Download());
+			$file_system->addPlugin(new GetToken());
 			return $file_system;
 		});
 	}

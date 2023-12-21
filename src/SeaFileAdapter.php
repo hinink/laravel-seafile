@@ -13,6 +13,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use hinink\SeaFileStorage\Http\Client;
 use hinink\SeaFileStorage\Resource\Directory;
 use hinink\SeaFileStorage\Resource\File;
+use hinink\SeaFileStorage\Resource\Auth;
 use hinink\SeaFileStorage\Resource\Library;
 use League\Flysystem\Adapter\AbstractAdapter;
 use League\Flysystem\Adapter\Polyfill\NotSupportingVisibilityTrait;
@@ -49,8 +50,7 @@ class SeaFileAdapter extends AbstractAdapter
 	public function getClient()
 	{
 		if (!$this->token) {
-			throw new Exception('token is empty', 410);
-			# todo 根据 账号密码获取Token
+			$this->token = $this->getToken();
 		}
 		return new Client(
 			[
@@ -65,7 +65,8 @@ class SeaFileAdapter extends AbstractAdapter
 
 	public function getToken()
 	{
-
+		$authResource = new Auth(new Client([ 'base_uri' => $this->baseUri, ]));
+		return $authResource->getToken($this->username, $this->password);
 	}
 
 	/**

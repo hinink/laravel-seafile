@@ -12,5 +12,27 @@ namespace hinink\SeaFileStorage\Resource;
  */
 class Auth extends Resource implements ResourceInterface
 {
-    const API_VERSION = '2';
+	const API_VERSION = '2';
+
+	/**
+	 * @param $username
+	 * @param $password
+	 * @return string
+	 */
+	public function getToken($username, $password)
+	{
+		$clippedBaseUri = $this->clipUri($this->getApiBaseUrl());
+		$response       = $this->client->request(
+			'POST',
+			$clippedBaseUri . '/auth-token/',
+			[
+				'form_params' => [
+					'username' => $username,
+					'password' => $password,
+				]
+			]
+		);
+		$result         = json_decode((string)$response->getBody(), true);
+		return isset($result['token']) ? $result['token'] : '';
+	}
 }
