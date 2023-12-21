@@ -3,7 +3,7 @@
 namespace hinink\SeaFileStorage\Plugins;
 
 use League\Flysystem\Plugin\AbstractPlugin;
-use Seafile\Client\Type\Library as LibraryType;
+
 
 class UploadUrl extends AbstractPlugin
 {

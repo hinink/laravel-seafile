@@ -9,10 +9,10 @@ namespace hinink\SeaFileStorage\Resource;
 
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use hinink\SeaFileStorage\Type\DirectoryItem;
+use hinink\SeaFileStorage\Type\FileHistoryItem;
+use hinink\SeaFileStorage\Type\Library as LibraryType;
 use Psr\Http\Message\ResponseInterface;
-use Seafile\Client\Type\DirectoryItem;
-use Seafile\Client\Type\FileHistoryItem;
-use Seafile\Client\Type\Library as LibraryType;
 
 class File extends Resource
 {

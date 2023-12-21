@@ -10,14 +10,14 @@ namespace hinink\SeaFileStorage;
 use Cache;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use hinink\SeaFileStorage\Http\Client;
 use hinink\SeaFileStorage\Resource\Directory;
 use hinink\SeaFileStorage\Resource\File;
+use hinink\SeaFileStorage\Resource\Library;
 use League\Flysystem\Adapter\AbstractAdapter;
 use League\Flysystem\Adapter\Polyfill\NotSupportingVisibilityTrait;
 use League\Flysystem\Adapter\Polyfill\StreamedReadingTrait;
 use League\Flysystem\Config;
-use Seafile\Client\Http\Client;
-use Seafile\Client\Resource\Library;
 
 class SeaFileAdapter extends AbstractAdapter
 {

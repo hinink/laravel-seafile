@@ -2,12 +2,11 @@
 
 namespace hinink\SeaFileStorage\Resource;
 
-use Seafile\Client\Http\Client;
+use hinink\SeaFileStorage\Http\Client;
 
 /**
  * Abstract resource class
  *
- * @package   Seafile\Resource
  * @author    Rene Schmidt DevOps UG (haftungsbeschränkt) & Co. KG <rene+_seafile_github@sdo.sh>
  * @copyright 2015-2020 Rene Schmidt DevOps UG (haftungsbeschränkt) & Co. KG <rene+_seafile_github@sdo.sh>
  * @license   https://opensource.org/licenses/MIT MIT

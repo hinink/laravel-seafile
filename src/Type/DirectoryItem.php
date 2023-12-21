@@ -1,15 +1,22 @@
 <?php
-/**
- * author: Hinink Z
- * createTime: 2023/12/19 10:45
- * description:
- */
 
 namespace hinink\SeaFileStorage\Type;
 
-use Seafile\Client\Resource\Resource;
+use DateTime;
+use Exception;
+use stdClass;
 
-class DirectoryItem extends Resource
+/**
+ * Directory Item class.
+ *
+ * @package   Seafile\Resource
+ * @author    Rene Schmidt DevOps UG (haftungsbeschränkt) & Co. KG <rene+_seafile_github@sdo.sh>
+ * @copyright 2015-2020 Rene Schmidt DevOps UG (haftungsbeschränkt) & Co. KG <rene+_seafile_github@sdo.sh>
+ * @license   https://opensource.org/licenses/MIT MIT
+ * @link      https://github.com/Schmidt-DevOps/seafile-php-sdk
+ * @method DirectoryItem fromJson(stdClass $jsonResponse)
+ */
+class DirectoryItem extends Type
 {
 	/**
 	 * @var string
@@ -64,13 +71,13 @@ class DirectoryItem extends Resource
 	 *
 	 * @param array $fromArray Create from array
 	 *
-	 * @return \Seafile\Client\Type\DirectoryItem
+	 * @return DirectoryItem
 	 * @throws Exception
 	 */
 	public function fromArray(array $fromArray): DirectoryItem
 	{
 		$typeExists = array_key_exists('type', $fromArray);
-		$dirExists  = array_key_exists('dir', $fromArray);
+		$dirExists = array_key_exists('dir', $fromArray);
 
 		if ($typeExists === false && $dirExists === true && is_bool($fromArray['dir'])) {
 			$fromArray['type'] = $fromArray['dir'] === true ? self::TYPE_DIR : self::TYPE_FILE;

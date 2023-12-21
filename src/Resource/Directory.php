@@ -4,8 +4,8 @@
 namespace hinink\SeaFileStorage\Resource;
 
 use GuzzleHttp\Exception\GuzzleException;
-use Seafile\Client\Type\DirectoryItem;
-use Seafile\Client\Type\Library as LibraryType;
+use hinink\SeaFileStorage\Type\DirectoryItem;
+use hinink\SeaFileStorage\Type\Library as LibraryType;
 
 class Directory extends Resource
 {
