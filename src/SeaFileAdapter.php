@@ -83,24 +83,25 @@ class SeaFileAdapter extends AbstractAdapter
 		return $fileResource->getUploadUrl($this->library, $newFile, $dir);
 	}
 
-	public function write($path, $contents, Config $config)
+	public function write($fullPath, $contents, Config $config)
 	{
-		// TODO: Implement write() method.
+		$fileResource = new File($this->client);
+		return $fileResource->upload($this->library, $fullPath, $contents);
 	}
 
 	public function writeStream($path, $resource, Config $config)
 	{
-		// TODO: Implement writeStream() method.
+		return $this->write($path, $resource, $config);
 	}
 
-	public function update($path, $contents, Config $config)
+	public function update($fullPath, $contents, Config $config)
 	{
-		// TODO: Implement update() method.
+		return $this->write($fullPath, $contents, $config);
 	}
 
 	public function updateStream($path, $resource, Config $config)
 	{
-		// TODO: Implement updateStream() method.
+		return $this->writeStream($path, $resource, $config);
 	}
 
 	public function download($path, $savepath = '')
@@ -241,7 +242,8 @@ class SeaFileAdapter extends AbstractAdapter
 
 	public function read($path)
 	{
-		// TODO: Implement read() method.
+		$location = $this->getUrl($path);
+		return [ 'contents' => file_get_contents($location) ];
 	}
 
 	/**

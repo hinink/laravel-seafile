@@ -4,11 +4,10 @@
 namespace hinink\SeaFileStorage\Resource;
 
 use GuzzleHttp\Exception\GuzzleException;
-use Seafile\Client\Resource\Directory as BaseDirectory;
 use Seafile\Client\Type\DirectoryItem;
 use Seafile\Client\Type\Library as LibraryType;
 
-class Directory extends BaseDirectory
+class Directory extends Resource
 {
 	const API_VERSION = '2';
 
