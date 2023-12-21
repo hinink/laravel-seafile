@@ -278,7 +278,7 @@ class SeaFileAdapter extends AbstractAdapter
 				}
 			}
 			$fileResource   = new File($this->client);
-			$directory_item = $this->getMetadata($path);
+			$directory_item = $this->getMetadata($url);
 			$full_url       = $fileResource->getDownloadUrl($this->library, $directory_item, $directory_item->path);
 			if (is_array($path) and $path['cache']) {
 				Cache::tags([ 'seafile', 'url' ])->put($url, $full_url, 3000);
