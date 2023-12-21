@@ -276,29 +276,32 @@ class File extends Resource
 		$uri          = $this->getUploadUrl($library, true, $parent_dir);
 		$fileBaseName = basename($fullPath);
 		$path         = dirname($fullPath);
-//		$path         = $path === '.' ? '/' : $path . '/';
+		$path         = $path === '.' ? '/' : $path . '/';
+		$multipart    = [
+			[
+				'headers'  => [ 'Content-Type' => 'application/octet-stream' ],
+				'name'     => 'file',
+				'contents' => $contents,
+				'filename' => $fileBaseName
+			],
+			[
+				'name'     => 'parent_dir',
+				'contents' => $parent_dir,
+			],
+			[
+				'name'     => 'replace',
+				'contents' => $replace,
+			],
+		];
+		if ($path !== '/') {
+			$multipart[] = [
+				'name'     => 'relative_path',
+				'contents' => $path,
+			];
+		}
 		$options  = [
 			'headers'   => [ 'Accept' => '*/*' ],
-			'multipart' => [
-				[
-					'headers'  => [ 'Content-Type' => 'application/octet-stream' ],
-					'name'     => 'file',
-					'contents' => $contents,
-					'filename' => $fileBaseName
-				],
-				[
-					'name'     => 'parent_dir',
-					'contents' => $parent_dir,
-				],
-				[
-					'name'     => 'relative_path',
-					'contents' => $path,
-				],
-				[
-					'name'     => 'replace',
-					'contents' => $replace,
-				],
-			],
+			'multipart' => $multipart
 		];
 		$response = $this->client->request('POST', $uri, $options);
 		return $response->getStatusCode() === 200;
