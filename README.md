@@ -1,10 +1,4 @@
 ## sea file for laravel
-### install
-
-```bash 
- composer require "hinink/laravel-seafile:^v1.0.1"
-
-```
 
 #### Available methods
 

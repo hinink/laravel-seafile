@@ -11,9 +11,9 @@ use Cache;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use hinink\SeaFileStorage\Http\Client;
+use hinink\SeaFileStorage\Resource\Auth;
 use hinink\SeaFileStorage\Resource\Directory;
 use hinink\SeaFileStorage\Resource\File;
-use hinink\SeaFileStorage\Resource\Auth;
 use hinink\SeaFileStorage\Resource\Library;
 use League\Flysystem\Adapter\AbstractAdapter;
 use League\Flysystem\Adapter\Polyfill\NotSupportingVisibilityTrait;
@@ -119,16 +119,31 @@ class SeaFileAdapter extends AbstractAdapter
 	 */
 	public function rename($path, $newname): bool
 	{
-		$directory_item = $this->getMetadata($path);
-		if ($directory_item) {
-			return $this->fileResource->rename($this->library, $directory_item, $newname);
+		$item = $this->getMetadata($path);
+		if ($item) {
+			return $this->fileResource->rename($this->library, $item, $newname);
+		}
+		return false;
+	}
+
+	public function move($path, $newpath)
+	{
+		$item = $this->getMetadata($path);
+		if ($item) {
+			$filePath = $item->path === '/' ? $item->dir . $item->name : $item->dir . $item->path . $item->name;
+			return $this->fileResource->move($this->library, $filePath, $this->library, $newname);
 		}
 		return false;
 	}
 
 	public function copy($path, $newpath)
 	{
-
+		$item = $this->getMetadata($path);
+		if ($item) {
+			$filePath = $item->path === '/' ? $item->dir . $item->name : $item->dir . $item->path . $item->name;
+			return $this->fileResource->copy($this->library, $filePath, $this->library, $newpath);
+		}
+		return false;
 	}
 
 	public function delete($path)

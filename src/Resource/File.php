@@ -175,12 +175,12 @@ class File extends Resource
 	}
 
 	/**
-	 * @param LibraryType $library
-	 * @param string      $filePath
+	 * @param LibraryType   $library
+	 * @param string |array $filePath
 	 * @return bool
 	 * @throws GuzzleException
 	 */
-	public function remove(LibraryType $library, string $filePath): bool
+	public function remove(LibraryType $library, $filePath): bool
 	{
 		if (empty($filePath)) {
 			return false;
@@ -226,21 +226,19 @@ class File extends Resource
 		if (empty($srcFilePath) || empty($dstDirectoryPath)) {
 			return false;
 		}
-
 		$operationMode = 'copy';
-		$returnCode    = 200;
 
 		if ($operation === self::OPERATION_MOVE) {
 			$operationMode = 'move';
-			$returnCode    = 301;
 		}
 
-		$uri      = sprintf(
-			'%s/repos/%s/file/?p=%s',
+		$uri = sprintf(
+			'%s/repos/%s/file/?p=%s&reloaddir=true',
 			$this->clipUri($this->getApiBaseUrl()),
 			$srcLibrary->id,
 			$this->urlEncodePath($srcFilePath)
 		);
+
 		$response = $this->client->request(
 			'POST',
 			$uri,
@@ -263,7 +261,7 @@ class File extends Resource
 			]
 		);
 
-		return $response->getStatusCode() === $returnCode;
+		return $response->getStatusCode() === 200;
 	}
 
 	public function update(LibraryType $library, $fullPath, $contents, int $replace = 1)
