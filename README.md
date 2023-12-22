@@ -63,21 +63,23 @@ composer require "hinink/laravel-seafile"
 #### Config filesystems.php add
 
 ```php
+
 'disks'=>[
      ....
      
     'seafile' => [
         'driver'   => 'seaFile',                    # 必须
         'server'   => env('SEAFILE_SERVER', ''),    # 必须
-        'username' => env('SEAFILE_USER', ''),      # 未实现
+        'username' => env('SEAFILE_USER', ''),      # 
         'password' => env('SEAFILE_PASSWORD', ''),
-        'token'    => env('SEAFILE_TOKEN', ''),     # 必须
-        'repo_id'  => env('SEAFILE_REPO_ID', ''),	# 必须	    	
+        'token'    => env('SEAFILE_TOKEN', ''),     # 
+        'repo_id'  => env('SEAFILE_REPO_ID', ''),   # 必须	    	
     ],
     
    ...
 ]
 ```
+> Token or username password method
 
 #### Direct file transmission
 
