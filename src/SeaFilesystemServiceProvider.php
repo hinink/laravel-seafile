@@ -33,7 +33,6 @@ class SeaFilesystemServiceProvider extends ServiceProvider
 			);
 			$file_system      = new Filesystem($sea_file_adapter);
 			$file_system->addPlugin(new UploadUrl());
-			$file_system->addPlugin(new Download());
 			$file_system->addPlugin(new GetToken());
 			return $file_system;
 		});

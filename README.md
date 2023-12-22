@@ -1,6 +1,25 @@
-## sea file for laravel
+## Flysystem Adapter for SeaFile
 
-#### Available methods
+### Requirement
+
+```bash
+PHP >= 7.4
+Laravel >= 6
+
+```
+
+### Installation
+
+```bash
+composer require "hinink/laravel-seafile"
+
+```
+
+### Usages
+
+> SeaFile Api Doc
+
+- [Upload Usage](https://download.seafile.com/published/web-api/v2.1/file-upload.md#user-content-Update%20File)
 
 ```php
     $storage = Storage::disk('seafile');
@@ -40,14 +59,13 @@
     $storage->url(['url'=>'file path','cache'=>true]);  # Valid for one hour
 
 ```
-> sea file api doc
-
-[Upload Usage](https://download.seafile.com/published/web-api/v2.1/file-upload.md#user-content-Update%20File)
-
 
 #### Config filesystems.php add
 
 ```php
+'disks'=>[
+     ....
+     
     'seafile' => [
         'driver'   => 'seaFile',                    # 必须
         'server'   => env('SEAFILE_SERVER', ''),    # 必须
@@ -56,10 +74,12 @@
         'token'    => env('SEAFILE_TOKEN', ''),     # 必须
         'repo_id'  => env('SEAFILE_REPO_ID', ''),	# 必须	    	
     ],
-
+    
+   ...
+]
 ```
 
-#### 文件直传
+#### Direct file transmission
 
 1. getUploadUrl
 
@@ -85,4 +105,13 @@
         
 ```
 
-#### 内部传输
+## Refer To
+
+- [overtrue/flysystem-qiniu](https://github.com/overtrue/flysystem-qiniu)
+- [rsd/seafile-php-sdk](https://github.com/Schmidt-DevOps/Seafile-PHP-SDK)
+
+### License
+
+```php
+MIT
+```
